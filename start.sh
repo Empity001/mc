@@ -10,9 +10,10 @@ for file in eula.txt server.properties ops.json whitelist.json; do
   fi
 done
 
-# Paper y los plugins sí se actualizan en cada despliegue.
-if [ -f /app/server/paper.jar ]; then
-  cp -f /app/server/paper.jar /data/paper.jar
+# Descargar Paper automáticamente si no existe
+if [ ! -f /data/paper.jar ]; then
+  echo "Descargando Paper 1.21.11..."
+  curl -L "https://fill.papermc.io/v3/projects/paper/versions/1.21.11/builds/latest/downloads/paper-1.21.11.jar" -o /data/paper.jar
 fi
 
 if compgen -G "/app/server/plugins/*.jar" > /dev/null; then
@@ -35,10 +36,5 @@ if [ -n "${TYPEWRITER_HOSTNAME:-}" ] && [ -f /data/plugins/Typewriter/config.yml
 fi
 
 cd /data
-
-if [ ! -f paper.jar ]; then
-  echo "ERROR: falta server/paper.jar en el repositorio."
-  exit 1
-fi
 
 exec java -Xms512M -Xmx"${MEMORY:-2G}" -jar paper.jar --nogui
